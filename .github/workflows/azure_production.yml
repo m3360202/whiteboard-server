@@ -1,0 +1,89 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build and deploy Node.js app to Azure Web App - boardxproduction
+
+on:
+  push:
+    branches:
+      - main_us
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js version
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      - name: Setup meteor
+        uses: meteorengineer/setup-meteor@v1
+        with:
+          meteor-release: '2.6.1'
+          
+      - name: npm install, build, and test
+        run: |
+          npm install
+          npm run build --if-present
+          
+      - name: npm install, build, and test
+        run: meteor build --directory ./build
+
+      - name: Create tarball of build directory
+        run: tar czf build.tar.gz -C build .
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: node-app
+          path: build.tar.gz
+
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: node-app
+
+                
+      - name: Extract build tarball
+        run: tar xzf build.tar.gz 
+
+      - name: remove files
+        run: rm build.tar.gz
+      
+      - name: List files to deploy
+        run: ls -al
+
+      # - name: clear cache
+      #   run: sudo chown -R $(whoami) /home/runner/work/boardx_server/boardx_server/bundle/programs/server/
+
+             # Add this step for npm install
+      - name: Install server-side npm dependencies
+        run: cd bundle/programs/server && sudo npm cache clean -f && sudo npm install
+
+      # Add this step to go back to the original directory, if needed
+      - name: Go back to the home directory
+        run: cd ../../..
+
+
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'boardxproduction'
+          slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_01582A8334D14C6C9CCEBD6D3580A83D }}
+          package: .

@@ -1,0 +1,10 @@
+{
+    "presets": [
+        [
+            "meteor"
+        ]
+    ],
+    "plugins": [
+        "@babel/plugin-proposal-logical-assignment-operators"
+    ]
+}

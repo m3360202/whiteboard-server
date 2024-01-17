@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+     "target": "ES6", // 输出的代码采用的js版本
+     "module": "CommonJS", // 输出的模块类型
+     "esModuleInterop": true, // 启用esModule交互性，允许使用CommonJS和ESM导入和导出
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "checkJs": false,
+    "noImplicitAny": false,
+    "strict": false,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react",
+    "strictNullChecks": false, // 关闭 null 和 undefined 类型检查
+    },
+    "include": ["src"]
+}
